@@ -22,26 +22,36 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ── Responsive CSS ────────────────────────────────────────────────────────────
+# ── Colorblind-Safe Dark Theme CSS ───────────────────────────────────────────
+# Palette: IBM Colorblind Safe — distinguishable for Deuteranopia, Protanopia,
+# Tritanopia. All foreground/background pairs meet WCAG AA (≥4.5:1 contrast).
 st.markdown("""
 <style>
 /* ── Google Font ── */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
 
-/* ── Root tokens ── */
+/* ── Root tokens — IBM Colorblind Safe palette ── */
 :root {
-    --bg:        #0d1117;
-    --surface:   #161b22;
-    --border:    #30363d;
-    --accent:    #58a6ff;
-    --danger:    #f85149;
-    --success:   #3fb950;
-    --warning:   #d29922;
-    --text:      #e6edf3;
-    --muted:     #8b949e;
+    /* backgrounds */
+    --bg:        #0a0a0f;
+    --surface:   #12131a;
+    --surface2:  #1a1b26;
+    --border:    #2a2d3e;
+
+    /* IBM colorblind-safe accent set */
+    --accent:    #648FFF;   /* blue   — safe anchor colour          */
+    --danger:    #FE6100;   /* orange — replaces red (invisible CBP)*/
+    --success:   #FFB000;   /* amber  — replaces green (CBP-safe)   */
+    --purple:    #785EF0;   /* violet — tertiary accent             */
+    --teal:      #009E73;   /* teal   — quaternary (Okabe-Ito safe) */
+
+    /* text */
+    --text:      #E8EAF6;
+    --muted:     #7B7F9E;
+
     --radius:    12px;
-    --font-body: 'DM Sans', sans-serif;
-    --font-mono: 'Space Mono', monospace;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
 }
 
 /* ── Global reset ── */
@@ -125,14 +135,14 @@ h3 {
 }
 [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
     background: var(--accent) !important;
-    color: #0d1117 !important;
+    color: #0a0a0f !important;
     font-weight: 600 !important;
 }
 
 /* ── Buttons ── */
 .stButton > button {
     background: var(--accent) !important;
-    color: #0d1117 !important;
+    color: #0a0a0f !important;
     border: none !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
@@ -375,7 +385,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
                 values=[normal_count, fraud_count],
                 names=['Normal', 'Fraud'],
                 title='Transaction Distribution',
-                color_discrete_sequence=['#3fb950', '#f85149'],
+                color_discrete_sequence=['#FFB000', '#FE6100'],
                 hole=0.4
             )
             apply_dark(fig)
@@ -387,7 +397,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
                 color='is_fraud',
                 labels={'is_fraud': 'Type', 'amount': 'Amount ($)'},
                 title='Amount Distribution by Type',
-                color_discrete_map={0: '#3fb950', 1: '#f85149'}
+                color_discrete_map={0: '#FFB000', 1: '#FE6100'}
             )
             fig.update_xaxes(ticktext=['Normal', 'Fraud'], tickvals=[0, 1])
             apply_dark(fig)
@@ -398,11 +408,11 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
             fig = go.Figure()
             fig.add_trace(go.Histogram(
                 x=df[df['is_fraud'] == 0]['time_hour'],
-                name='Normal', marker_color='#3fb950', opacity=0.75, nbinsx=24
+                name='Normal', marker_color='#FFB000', opacity=0.75, nbinsx=24
             ))
             fig.add_trace(go.Histogram(
                 x=df[df['is_fraud'] == 1]['time_hour'],
-                name='Fraud', marker_color='#f85149', opacity=0.75, nbinsx=24
+                name='Fraud', marker_color='#FE6100', opacity=0.75, nbinsx=24
             ))
             fig.update_layout(
                 title='Time-of-Day Distribution',
@@ -418,7 +428,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
                 color='is_fraud',
                 labels={'distance_from_home': 'Dist. from Home (km)', 'amount': 'Amount ($)'},
                 title='Distance vs Amount',
-                color_discrete_map={0: '#3fb950', 1: '#f85149'},
+                color_discrete_map={0: '#FFB000', 1: '#FE6100'},
                 opacity=0.55
             )
             apply_dark(fig)
@@ -433,7 +443,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
         corr = df[top_features].corr()
         fig = px.imshow(
             corr, text_auto='.2f', aspect='auto',
-            color_continuous_scale='RdBu_r',
+            color_continuous_scale='Cividis',
             title='Correlation Heatmap'
         )
         apply_dark(fig)
@@ -502,9 +512,9 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
             with col1:
                 fig = go.Figure()
                 for vals, name, color in [
-                    (accuracies, 'Accuracy',  '#58a6ff'),
-                    (f1_scores,  'F1-Score',  '#3fb950'),
-                    (roc_aucs,   'ROC-AUC',   '#f85149'),
+                    (accuracies, 'Accuracy',  '#648FFF'),
+                    (f1_scores,  'F1-Score',  '#FFB000'),
+                    (roc_aucs,   'ROC-AUC',   '#FE6100'),
                 ]:
                     fig.add_trace(go.Bar(name=name, x=model_names, y=vals, marker_color=color))
                 fig.update_layout(
@@ -515,7 +525,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
 
             with col2:
                 fig = go.Figure()
-                colors = ['#58a6ff', '#3fb950', '#f85149', '#d29922']
+                colors = ['#648FFF', '#FFB000', '#FE6100', '#785EF0']
                 for name, color in zip(model_names, colors):
                     fpr, tpr, _ = roc_curve(y_test, results[name]['probabilities'])
                     fig.add_trace(go.Scatter(
@@ -525,7 +535,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
                     ))
                 fig.add_trace(go.Scatter(
                     x=[0, 1], y=[0, 1], mode='lines', name='Random',
-                    line=dict(dash='dash', color='#8b949e', width=1)
+                    line=dict(dash='dash', color='#7B7F9E', width=1)
                 ))
                 fig.update_layout(
                     title='ROC Curves',
@@ -546,7 +556,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
                         cm, text_auto=True,
                         labels=dict(x="Predicted", y="Actual"),
                         x=['Normal', 'Fraud'], y=['Normal', 'Fraud'],
-                        color_continuous_scale='Blues', title=name
+                        color_continuous_scale='YlOrBr', title=name
                     )
                     apply_dark(fig)
                     cols[i].plotly_chart(fig, use_container_width=True)
@@ -565,7 +575,7 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
             fig = go.Figure(go.Bar(
                 x=importances[top_idx],
                 y=[feat_names[i] for i in top_idx],
-                orientation='h', marker_color='#58a6ff'
+                orientation='h', marker_color='#648FFF'
             ))
             fig.update_layout(
                 title='Top 10 Features', xaxis_title='Importance',
@@ -623,9 +633,9 @@ if 'data_generated' in st.session_state and st.session_state['data_generated']:
                     proba = result['model'].predict_proba(txn_scaled)[0]
                     conf  = proba[int(pred)] * 100
                     label = "🚨 FRAUD" if pred == 1 else "✅ NORMAL"
-                    color = "#f85149" if pred == 1 else "#3fb950"
+                    color = "#FE6100" if pred == 1 else "#FFB000"
                     st.markdown(f"""
-                    <div class="pred-card" style="border-color:{color}33;">
+                    <div class="pred-card" style="border-color:{color}55;">
                         <span class="pred-model">{name}</span>
                         <span class="pred-label" style="color:{color};font-weight:700;">{label}</span>
                         <span class="pred-conf">Confidence: {conf:.1f}%</span>
@@ -639,20 +649,20 @@ else:
     <div style="
         text-align:center;
         padding: clamp(2rem,6vw,5rem) 1rem;
-        background: #161b22;
-        border: 1px solid #30363d;
+        background: #12131a;
+        border: 1px solid #2a2d3e;
         border-radius: 16px;
         margin-top: 2rem;
     ">
         <div style="font-size:clamp(2.5rem,8vw,5rem);margin-bottom:1rem;">💳</div>
-        <h2 style="color:#58a6ff;font-size:clamp(1.2rem,3vw,2rem);margin:0 0 0.75rem;">
+        <h2 style="color:#648FFF;font-size:clamp(1.2rem,3vw,2rem);margin:0 0 0.75rem;">
             Credit Card Fraud Detection
         </h2>
-        <p style="color:#8b949e;font-size:clamp(0.85rem,2vw,1.05rem);max-width:520px;margin:0 auto 1.5rem;">
+        <p style="color:#7B7F9E;font-size:clamp(0.85rem,2vw,1.05rem);max-width:520px;margin:0 auto 1.5rem;">
             Generate synthetic transaction data, explore patterns, train ML models,
             and predict fraud in real time — all in one place.
         </p>
-        <p style="color:#58a6ff;font-size:0.9rem;font-weight:600;">
+        <p style="color:#FFB000;font-size:0.9rem;font-weight:600;">
             ← Click <strong>Generate Data</strong> in the sidebar to begin
         </p>
     </div>
